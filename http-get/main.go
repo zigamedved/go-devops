@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -8,6 +9,13 @@ import (
 	"net/url"
 	"os"
 )
+
+// {"page":"words","input":"","words":[]}
+type words struct {
+	Page  string   `json:"page"`
+	Input string   `json:"input"`
+	Words []string `json:"words"`
+}
 
 func getUrlFromArgs(args []string) (string, error) {
 	url, err := url.ParseRequestURI(args[1])
@@ -38,11 +46,22 @@ func main() {
 		log.Fatal(err2)
 	}
 	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		fmt.Printf("Response status code is not 200 but %d\n", res.StatusCode)
+		os.Exit(1)
+	}
 
 	body, err3 := io.ReadAll(res.Body)
 	if err3 != nil {
 		log.Fatal(err3)
 	}
 
-	fmt.Printf("HTTP Status Code %d\nBody: %s\n", res.StatusCode, body)
+	var words words
+	err4 := json.Unmarshal(body, &words)
+	if err4 != nil {
+		fmt.Printf("Error while parsing JSON")
+		os.Exit(1)
+	}
+
+	fmt.Printf("Parsed JSON\nPage: %s\nInput: %s, \nWords: %v\n", words.Page, words.Input, words.Words)
 }
