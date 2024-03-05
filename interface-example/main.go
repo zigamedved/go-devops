@@ -12,7 +12,7 @@ type MySlowReader struct {
 }
 
 func (m *MySlowReader) Read(p []byte) (n int, err error) {
-	if m.position+1 <= len(m.content) {
+	if m.position < len(m.content) {
 		n := copy(p, m.content[m.position:m.position+1])
 		m.position++
 		return n, nil
