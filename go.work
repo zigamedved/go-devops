@@ -2,6 +2,7 @@ go 1.21.6
 
 use (
 	./aws-ec2
+	./aws-s3
 	./hello-world-with-args
 	./http-get
 	./interface-example
