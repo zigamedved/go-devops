@@ -16,6 +16,11 @@ import (
 const region = "eu-central-1"
 const uniqueBucketName = "bucket-125823"
 
+type S3Client interface { // created for testing purposes
+	ListBuckets(ctx context.Context, params *s3.ListBucketsInput, optFns ...func(*s3.Options)) (*s3.ListBucketsOutput, error)
+	CreateBucket(ctx context.Context, params *s3.CreateBucketInput, optFns ...func(*s3.Options)) (*s3.CreateBucketOutput, error)
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -49,7 +54,7 @@ func initS3Client(ctx context.Context) (*s3.Client, error) {
 	return s3.NewFromConfig(cfg), nil
 }
 
-func createS3Bucket(ctx context.Context, s3Client *s3.Client) error {
+func createS3Bucket(ctx context.Context, s3Client S3Client) error {
 	existingBuckets, err := s3Client.ListBuckets(ctx, &s3.ListBucketsInput{})
 	if err != nil {
 		return fmt.Errorf("error while listing buckets, %v", err)
