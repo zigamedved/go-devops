@@ -1,9 +1,10 @@
-go 1.21.6
+go 1.22.4
 
 use (
 	./aws-ec2
 	./aws-s3
-	./hello-world-with-args
-	./http-get
-	./interface-example
+	./basics/hello-world-with-args
+	./basics/http-get
+	./basics/interface-example
+	./kubernetes
 )
