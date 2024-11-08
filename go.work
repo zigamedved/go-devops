@@ -7,4 +7,5 @@ use (
 	./basics/http-get
 	./basics/interface-example
 	./kubernetes
+	./ssh
 )
