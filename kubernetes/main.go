@@ -9,6 +9,7 @@ import (
 	v1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/clientcmd"
@@ -28,7 +29,12 @@ func main() {
 	}
 
 	if deploymentLabels, err = deploy(context.Background(), client); err != nil {
-		fmt.Printf("Error: %s", err)
+		fmt.Printf("Error deploying: %s", err)
+		os.Exit(1)
+	}
+
+	if err = waitForPods(context.Background(), client, deploymentLabels); err != nil {
+		fmt.Printf("Error while waiting for pods: %s", err)
 		os.Exit(1)
 	}
 
@@ -47,7 +53,6 @@ func getClient() (*kubernetes.Clientset, error) {
 	}
 
 	return clientset, nil
-
 }
 
 func deploy(ctx context.Context, client *kubernetes.Clientset) (map[string]string, error) {
@@ -87,4 +92,32 @@ func deploy(ctx context.Context, client *kubernetes.Clientset) (map[string]strin
 	}
 
 	return deploymentResponse.Spec.Template.Labels, nil
+}
+
+func waitForPods(ctx context.Context, client *kubernetes.Clientset, deploymentLabels map[string]string) error {
+	for {
+		validatedLabels, err := labels.ValidatedSelectorFromSet(deploymentLabels)
+		if err != nil {
+			return fmt.Errorf("validate selector error: %s", err)
+		}
+
+		podList, err := client.CoreV1().Pods("default").List(ctx, metav1.ListOptions{LabelSelector: validatedLabels.String()})
+		if err != nil {
+			return fmt.Errorf("pod listing error: %s", err)
+		}
+		podsRunning := 0
+		for _, pod := range podList.Items {
+			if pod.Status.Phase == "Running" {
+				podsRunning++
+			}
+		}
+
+		if podsRunning > 0 && podsRunning == len(podList.Items) {
+			break
+		}
+
+		fmt.Printf("waiting for pods to become ready")
+	}
+
+	return nil
 }
