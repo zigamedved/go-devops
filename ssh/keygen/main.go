@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/zigamedved/go-devops/ssh"
 )
 
 func main() {
@@ -12,17 +14,17 @@ func main() {
 		err        error
 	)
 
-	if privateKey, publicKey, err = GenerateKeys(); err != nil {
+	if privateKey, publicKey, err = ssh.GenerateKeys(); err != nil {
 		fmt.Printf("Error: %s\n", err)
 		os.Exit(1)
 	}
 
-	if err = os.WriteFile("./keys/mykey.pem", privateKey, 0600); err != nil {
+	if err = os.WriteFile("../keys/mykey.pem", privateKey, 0600); err != nil {
 		fmt.Printf("Error: %s\n", err)
 		os.Exit(1)
 	}
 
-	if err = os.WriteFile("./keys/mykey.pub", publicKey, 0600); err != nil {
+	if err = os.WriteFile("../keys/mykey.pub", publicKey, 0600); err != nil {
 		fmt.Printf("Error: %s\n", err)
 		os.Exit(1)
 	}

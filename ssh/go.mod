@@ -1,4 +1,4 @@
-module ssh
+module github.com/zigamedved/go-devops/ssh
 
 go 1.22.4
 
