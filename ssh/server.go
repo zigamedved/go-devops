@@ -148,5 +148,5 @@ func execSomething(conn *ssh.ServerConn, payload []byte) string {
 	}
 }
 
-// ssh localhost -p 2022 -i mykey.pem
+// ssh localhost -p 2022 -i mykey.pem or ssh localhost -p 2022 -i mykey.pem "whoami"
 // whoami
